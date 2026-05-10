@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # --- Imports ---
 # Cleaned up imports into a single, organized block.
-from langchain_huggingface import HuggingFacePipeline
+from langchain_huggingface import HuggingFaceEndpoint
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from vector_utils import load_vectorstore
@@ -53,13 +53,17 @@ def get_vectorstore():
 # Caching the LLM loading for significant speed improvement.
 @st.cache_resource
 def load_llm():
-    """Loads the Hugging Face model using local pipeline."""
+    """Loads the Hugging Face model using Inference API (no local torch needed)."""
     try:
-        llm = HuggingFacePipeline.from_model_id(
-            model_id=HUGGING_FACE_REPO_ID,
-            task="text2text-generation",
-            device=-1,  # Use CPU
-            model_kwargs={"temperature": 0.1, "max_length": 2048}
+        if not HF_TOKEN:
+            st.error("HF_TOKEN not found. Please add it to secrets or .env file.")
+            return None
+        
+        llm = HuggingFaceEndpoint(
+            repo_id=HUGGING_FACE_REPO_ID,
+            huggingfacehub_api_token=HF_TOKEN,
+            temperature=0.1,
+            max_length=2048
         )
         return llm
     except Exception as e:

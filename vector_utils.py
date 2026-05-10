@@ -1,8 +1,15 @@
 import os
 from typing import Optional
 
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+
+# Try to import HuggingFaceEmbeddings, but don't fail if torch/sentence-transformers not available
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+    HAS_EMBEDDINGS = True
+except Exception:
+    HAS_EMBEDDINGS = False
+    HuggingFaceEmbeddings = None
 
 
 # Shared constants and helpers for vector store and embeddings
@@ -12,6 +19,8 @@ DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL):
     """Return a HuggingFaceEmbeddings instance for the given model name."""
+    if not HAS_EMBEDDINGS:
+        raise ImportError("HuggingFaceEmbeddings not available. Install sentence-transformers for local use.")
     return HuggingFaceEmbeddings(model_name=model_name)
 
 
@@ -19,11 +28,24 @@ def load_vectorstore(path: str = DB_FAISS_PATH, model_name: str = DEFAULT_EMBEDD
     """Load an existing FAISS vectorstore from `path` using the embedding model.
 
     Returns the FAISS object or None if the path isn't present.
+    If embeddings module not available, tries to load without it.
     """
     if not os.path.exists(path):
         return None
-    embedding_model = get_embedding_model(model_name=model_name)
-    db = FAISS.load_local(path, embedding_model, allow_dangerous_deserialization=True)
+    
+    try:
+        # Try with embeddings first (local development)
+        if HAS_EMBEDDINGS:
+            embedding_model = get_embedding_model(model_name=model_name)
+            db = FAISS.load_local(path, embedding_model, allow_dangerous_deserialization=True)
+        else:
+            # Fallback: load without embeddings (Streamlit Cloud)
+            # The FAISS index already has embeddings serialized
+            db = FAISS.load_local(path, embeddings=None, allow_dangerous_deserialization=True)
+        return db
+    except Exception as e:
+        print(f"Error loading vectorstore: {str(e)}")
+        return None
     return db
 
 

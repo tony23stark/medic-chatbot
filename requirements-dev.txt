@@ -1,0 +1,9 @@
+# Development requirements - for building vector store locally
+# Install with: pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Heavy dependencies needed only for local vector store creation
+sentence-transformers==5.4.1
+torch==2.1.2 -f https://download.pytorch.org/whl/cpu
+transformers==5.8.0
