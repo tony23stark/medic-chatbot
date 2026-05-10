@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
+# Note: config.toml is tracked for deployment consistency
 
 # Vector stores and generated data
 vectorstore/

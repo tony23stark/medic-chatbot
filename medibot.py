@@ -10,8 +10,14 @@ from langchain_core.output_parsers import StrOutputParser
 from vector_utils import load_vectorstore
 
 # --- Load Environment Variables ---
-# This ensures the HF_TOKEN is loaded from your .env file at the start.
+# Support both local (.env) and Streamlit Cloud (st.secrets)
 load_dotenv()
+
+# Get HF_TOKEN from Streamlit secrets (for Cloud deployment) or .env (for local)
+try:
+    HF_TOKEN = st.secrets.get("HF_TOKEN") or os.getenv("HF_TOKEN")
+except:
+    HF_TOKEN = os.getenv("HF_TOKEN")
 
 # --- App Configuration & Constants ---
 st.set_page_config(page_title="MediBot", page_icon="⚕️", layout="centered")
