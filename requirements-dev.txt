@@ -4,6 +4,7 @@
 -r requirements.txt
 
 # Heavy dependencies needed only for local vector store creation
+langchain-huggingface==0.3.1
 sentence-transformers==5.4.1
 torch==2.1.2 -f https://download.pytorch.org/whl/cpu
 transformers==5.8.0

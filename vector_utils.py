@@ -3,15 +3,6 @@ from typing import Optional
 
 from langchain_community.vectorstores import FAISS
 
-# Try to import HuggingFaceEmbeddings, but don't fail if torch/sentence-transformers not available
-try:
-    from langchain_huggingface import HuggingFaceEmbeddings
-    HAS_EMBEDDINGS = True
-except Exception:
-    HAS_EMBEDDINGS = False
-    HuggingFaceEmbeddings = None
-
-
 # Shared constants and helpers for vector store and embeddings
 DB_FAISS_PATH = "vectorstore/db_faiss"
 DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -19,8 +10,13 @@ DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL):
     """Return a HuggingFaceEmbeddings instance for the given model name."""
-    if not HAS_EMBEDDINGS:
-        raise ImportError("HuggingFaceEmbeddings not available. Install sentence-transformers for local use.")
+    try:
+        from langchain_huggingface import HuggingFaceEmbeddings
+    except Exception as e:
+        raise ImportError(
+            "HuggingFaceEmbeddings not available. Install sentence-transformers for local use. "
+            f"Original error: {e}"
+        )
     return HuggingFaceEmbeddings(model_name=model_name)
 
 
