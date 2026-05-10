@@ -134,6 +134,8 @@ dmypy.json
 
 # Vector stores and generated data
 vectorstore/
+!vectorstore/db_faiss/
+!vectorstore/db_faiss/*
 data/*.pdf  # Uncomment if you want to ignore PDFs, but probably keep them
 
 # IDE

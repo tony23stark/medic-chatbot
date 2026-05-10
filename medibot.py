@@ -62,6 +62,7 @@ def load_llm():
         llm = HuggingFaceHub(
             repo_id=HUGGING_FACE_REPO_ID,
             huggingfacehub_api_token=HF_TOKEN,
+            task="text2text-generation",
             model_kwargs={"temperature": 0.1, "max_length": 2048}
         )
         return llm
